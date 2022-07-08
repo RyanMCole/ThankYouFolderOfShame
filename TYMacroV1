@@ -1,0 +1,133 @@
+
+
+'Script to move "Thank you" messages into folder. What can I say except, 'You're welcome!'
+
+Sub CustomMailMessageRule(Item As Outlook.MailItem)
+
+   'MsgBox "Mail message arrived: " & Item.Subject
+
+  
+
+   If TypeName(Item) = "MailItem" Then
+
+        Dim MoveToFolder As Outlook.MAPIFolder
+
+        Dim objectNS As Outlook.NameSpace
+
+        Dim outlookApp As Outlook.Application
+
+       
+
+        Set Msg = Item
+
+        Set outlookApp = Outlook.Application
+
+        Set objectNS = outlookApp.GetNamespace("MAPI")
+
+        Set MoveToFolder = objectNS.GetDefaultFolder(olFolderInbox).Folders("Thank you")
+
+ 
+
+        If MoveToFolder Is Nothing Then
+
+            MsgBox "Thank you folder not found! Create 'Thank you' folder in your Inbox", vbOKOnly + vbExclamation, "Move Macro Error"
+
+        Exit Sub
+
+    End If
+
+ 
+
+Dim sCursedPhrases(1 To 7) As Variant
+
+sCursedPhrases(1) = "ty"
+
+sCursedPhrases(2) = "thanks"
+
+sCursedPhrases(3) = "thank you"
+
+sCursedPhrases(4) = "yw"
+
+sCursedPhrases(5) = "you're welcome"
+
+sCursedPhrases(6) = "you are welcome"
+
+sCursedPhrases(7) = "you are very welcome"
+
+ 
+
+Dim sBody As String
+
+sBody = Item.Body
+
+ 
+
+Dim sBodyTrim As String
+
+sBodyTrim = LTrim(sBody) 'trims leading spaces. might need
+
+ 
+
+Dim phrase As Variant
+
+ 
+
+For Each phrase In sCursedPhrases
+
+    Dim iLenCursedPhrase As Integer
+
+    iLenCursedPhrase = Len(phrase)
+
+   
+
+    Dim sFirstLine As String
+
+    sFirstLine = Left(sBodyTrim, iLenCursedPhrase) 'trim string to match length of phrase to compare
+
+   
+
+    Dim sConverted As String
+
+    sConverted = LCase(sFirstLine)
+
+   
+
+    Dim iResult As Integer
+
+ 
+
+    iResult = StrComp(phrase, sConverted)
+
+           
+
+    If iResult = 0 Then 'mark as read. move to folder "Thank you" and end program
+
+        Item.UnRead = False
+
+ 
+
+        If MoveToFolder.DefaultItemType = olMailItem Then
+
+            If Item.Class = olMail Then
+
+                Item.Move MoveToFolder
+
+            End If
+
+        End If
+
+       
+
+        Exit Sub
+
+    End If
+
+Next phrase
+
+ 
+
+End If
+
+ 
+
+End Sub
